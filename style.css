@@ -1,0 +1,81 @@
+body {
+    background-color: burlywood;
+    font-family: "Times New Roman", Times, serif;
+    color: #4b3e3e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  .container {
+    text-align: center;
+    position: relative;
+  }
+  
+  #dialogue {
+    font-size: 24px;
+    font-family: "Garamond", serif;
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #fff8dc;
+    border-radius: 15px;
+    width: 400px;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    background-image: url('https://www.transparenttextures.com/patterns/old-map.png');
+    background-size: cover;
+    border: 2px solid #6b4f33;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  
+  #dialogue:before {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 15px solid #6b4f33; /* Same color as the border */
+    transform: translateX(-50%);
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  #nameInput {
+    display: none;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #4CAF50;
+    border-radius: 8px;
+    width: 200px;
+    margin-bottom: 20px;
+  }
+  
+  #travelBtn {
+    display: none;
+    padding: 10px 20px;
+    background-color: #FF5722;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  

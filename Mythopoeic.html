@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mythopoeic UI</title>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+
+  <!-- Feather Icons -->
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <!-- Fonts -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative&display=swap');
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+      color: white;
+      font-family: 'Cinzel Decorative', serif;
+    }
+
+    .dark-mode {
+      background: linear-gradient(to bottom, #1b1b1b, #000000);
+      color: burlywood;
+    }
+
+    .title {
+      font-size: 52px;
+      margin-bottom: 40px;
+      letter-spacing: 6px;
+      text-shadow: 0 0 8px gold, 0 0 16px gold;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .button {
+      background-color: rgba(85, 85, 85, 0.8);
+      color: white;
+      font-size: 16px;
+      padding: 12px 24px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      text-align: center;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .button:hover {
+      background-color: #777;
+      transform: scale(1.05);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 99;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(8px);
+      background-color: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #222;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      color: gold;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      font-size: 18px;
+      max-width: 400px;
+    }
+
+    .close {
+      color: gold;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: red;
+    }
+
+    input {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      width: 80%;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="title">Mythopoeic</div>
+
+  <div class="button-container">
+    <button class="button" onclick="openAuthModal('login')"><i data-feather="log-in"></i>Login</button>
+    <button class="button" onclick="openAuthModal('signup')"><i data-feather="user-plus"></i>Sign up</button>
+    <button class="button"><i data-feather="eye"></i>Guest</button>
+    <button class="button" onclick="toggleDarkMode()"><i data-feather="moon"></i>Dark Mode</button>
+    <button class="button" onclick="openModal()"><i data-feather="info"></i>Credits</button>
+  </div>
+
+  <!-- Credits Modal -->
+  <div id="creditsModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Credits</h2>
+      <p>Created by: <strong>Siem</strong></p>
+      <p>Inspired by Lord of the Rings, Harry Potter, Narnia.</p>
+      <p>Freesound</p>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2 id="authTitle">Login</h2>
+      <input type="text" id="authUsername" placeholder="Username (Sign Up only)" style="display:none;" />
+      <input type="email" id="authEmail" placeholder="Email" />
+      <input type="password" id="authPassword" placeholder="Password" />
+      <button class="button" onclick="submitAuth()">Submit</button>
+    </div>
+  </div>
+
+  <!-- Background Music -->
+  <audio id="background-music" loop autoplay>
+    <source src="music/779187__gregorquendel__dreamlike-piano-and-strings-soundscape.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    feather.replace();
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCNgxgB9ZVNTtz7sWp66zmeuALHo9AUtfc",
+      authDomain: "myth-7ecf2.firebaseapp.com",
+      projectId: "myth-7ecf2",
+      storageBucket: "myth-7ecf2.firebasestorage.app",
+      messagingSenderId: "318059677339",
+      appId: "1:318059677339:web:8874811c78f6c1042ba83e",
+      measurementId: "G-X0R8VR328Z"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    let isLogin = true;
+
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+    }
+
+    function openModal() {
+      document.getElementById("creditsModal").style.display = "flex";
+    }
+
+    function openAuthModal(mode) {
+      isLogin = mode === 'login';
+      document.getElementById("authTitle").textContent = isLogin ? "Login" : "Sign Up";
+      document.getElementById("authUsername").style.display = isLogin ? "none" : "block";
+      document.getElementById("authModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("creditsModal").style.display = "none";
+      document.getElementById("authModal").style.display = "none";
+    }
+
+
+  function submitAuth() {
+    const email = document.getElementById("authEmail").value;
+    const password = document.getElementById("authPassword").value;
+    const username = document.getElementById("authUsername").value;
+
+    if (isLogin) {
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const userId = userCredential.user.uid;
+          return database.ref('users/' + userId).once('value');
+        })
+        .then(snapshot => {
+          const username = snapshot.val().username;
+          localStorage.setItem("username", username);
+          window.location.href = `welcome.html?username=${encodeURIComponent(username)}`;
+        })
+        .catch(err => alert("⚠️ " + err.message));
+    } else {
+      if (!username) {
+        alert("Please choose a username worthy of your legend.");
+        return;
+      }
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const userId = userCredential.user.uid;
+          return database.ref('users/' + userId).set({
+            username: username,
+            email: email
+          }).then(() => ({ username }));
+        })
+        .then(({ username }) => {
+          localStorage.setItem("username", username);
+          window.location.href = `welcome.html?username=${encodeURIComponent(username)}`;
+        })
+        .catch(err => alert("⚠️ " + err.message));
+    }
+  }
+
+  </script>
+</body>
+</html>
